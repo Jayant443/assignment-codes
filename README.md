@@ -1,0 +1,1 @@
+This repo contains codes of college lab assignments, practicals, etc.
