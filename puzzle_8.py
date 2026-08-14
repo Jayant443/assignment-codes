@@ -58,10 +58,10 @@ class AStarSearch:
     
     def is_goal(self, state):
         return state == self.goal_state
-    
+
     def state_to_tuple(self, state):
         return tuple(tuple(row) for row in state)
-    
+
     def reconstruct_path(self, node):
         path = []
         while node is not None:
@@ -77,9 +77,40 @@ class AStarSearch:
         open_list = []
         closed_set = set()
         heapq.heappush(open_list, self.start)
+        step = 0
         while open_list:
             current = heapq.heappop(open_list)
+            self.print_board(current.state)
+            if current.parent is not None:
+                parent_blank = None
+                current_blank = None
+                for i in range(3):
+                    for j in range(3):
+                        if current.parent.state[i][j] is None:
+                            parent_blank = (i, j)
+                        if current.state[i][j] is None:
+                            current_blank = (i, j)
+                pi, pj = parent_blank
+                ci, cj = current_blank
+                if ci == pi and cj == pj + 1:
+                    operation = "RIGHT"
+                elif ci == pi and cj == pj - 1:
+                    operation = "LEFT"
+                elif ci == pi + 1 and cj == pj:
+                    operation = "UP"
+                elif ci == pi - 1 and cj == pj:
+                    operation = "DOWN"
+                tile_moved = current.parent.state[ci][cj]
+                print(f"Operation : {operation}")
+                print(f"Tile moved: {tile_moved}")
+            else:
+                print("Operation : START")
+                print("Tile moved: None")
+            print(f"g(n) = {current.g_n}")
+            print(f"h(n) = {current.h_n}")
+            print(f"f(n) = {current.f_n}")
             if self.is_goal(current.state):
+                print(f"Solved in {step} moves.")
                 return self.reconstruct_path(current)
             closed_set.add(self.state_to_tuple(current.state))
             children = self.get_next_possible_states(current)
@@ -91,8 +122,9 @@ class AStarSearch:
                 child.h_n = self.calculate_heuristic(child.state)
                 child.f_n = child.g_n + child.h_n
                 heapq.heappush(open_list, child)
+            step += 1
         return None
-
+    
     def calculate_goal_positions(self):
         goal_pos = {}
         for i in range(len(self.goal_state)):
@@ -136,8 +168,3 @@ search.print_board(search.start.state)
 solution = search.solve()
 if solution is None:
     print("No solution found.")
-
-else:
-    print(f"Solved in {len(solution)-1} moves.")
-    for state in solution:
-        search.print_board(state)
